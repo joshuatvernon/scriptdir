@@ -2,6 +2,7 @@
 
 import commander from 'commander';
 
+import version from '../version';
 import { commands } from './commands';
 import { config } from './config';
 import { constants } from './constants';
@@ -62,8 +63,8 @@ listRepoCommand.action(commands.list);
 
 // root command
 commander.name(constants.programName);
-commander.version('1.0.0');
-commander.description('Add, update and run scripts');
+commander.version(version);
+commander.description('Add, update and run scripts from git repos');
 commander.usage('[options]');
 commander.addCommand(addRepoCommand);
 commander.addCommand(removeRepoCommand);

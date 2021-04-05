@@ -37,7 +37,7 @@
 ```sh
 Usage: scriptrepo [options]
 
-Add, update and run scripts
+Add, update and run scripts from git repos
 
 Options:
   -V, --version      output the version number
