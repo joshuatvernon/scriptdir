@@ -39,9 +39,10 @@ updateRepoCommand.name('update');
 updateRepoCommand.description('Update scripts');
 updateRepoCommand.usage('[options]');
 updateRepoCommand.option('-n, --name [repoName]', 'Name of repo to update');
-updateRepoCommand.option('-f, --force', '');
+updateRepoCommand.option('-f, --force', 'Force update');
+updateRepoCommand.option('-s, --silent', 'Silent update');
 updateRepoCommand.action((options: commander.OptionValues) => {
-  commands.update(options.name, options.force);
+  commands.update(options.name, options.force, options.silent);
 });
 
 // "execute" command
