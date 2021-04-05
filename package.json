@@ -1,0 +1,85 @@
+{
+  "name": "scriptrepo",
+  "version": "1.0.0",
+  "description": "A CLI for running a directory of scripts",
+  "keywords": [
+    "script",
+    "repo",
+    "scriptrepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshuatvernon/scriptrepo.git"
+  },
+  "license": "MIT",
+  "author": "Joshua Vernon",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "scriptrepo": "./lib/index.js"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "prebuild": "npm run clean && npm run lint:fix",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "cli": "cbf -j cli,cli:docs,prebuild,tag:build-annotated,tag:changes-since-latest,tag:latest,tag:latest-annotated,tag:update-latest,preversion,version,postversion,version:current,version:latest-published",
+    "cli:docs": "cbf -d -j cli,cli:docs,prebuild,tag:build-annotated,tag:changes-since-latest,tag:latest,tag:latest-annotated,tag:update-latest,preversion,version,postversion,version:current,version:latest-published",
+    "refresh": "npm run build && npm uninstall scriptrepo -g && npm i . -g",
+    "clean": "rm -rf ./lib ./coverage",
+    "lint": "eslint --ignore-path .gitignore --ext .ts,.js .",
+    "lint:fix": "eslint --fix --ignore-path .gitignore --ext .ts,.js .",
+    "sort": "sort-package-json",
+    "test": "jest",
+    "tag:build-annotated": "echo \"$(npm run --silent tag:latest-annotated)\n\n$(npm run --silent tag:changes-since-latest)\"",
+    "tag:changes-since-latest": "echo \"$(git --no-pager log $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))..$(git describe --tags --abbrev=0) --no-merges --oneline --pretty=format:'- %s')\"",
+    "tag:latest": "echo $(git describe --tags --abbrev=0)",
+    "tag:latest-annotated": "echo $(git --no-pager log --tags -n1 --oneline --pretty=\"%s\")",
+    "tag:update-latest": "git tag -f \"$(npm run --silent tag:latest)\" \"$(npm run --silent tag:latest)\"^{} -a -m \"$(npm run --silent tag:build-annotated)\"",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "preversion": "npm run lint",
+    "version": "genversion --semi version.js && git add version.js",
+    "postversion": "npm run test:coverage:badges && npm run --silent tag:update-latest && git push -u origin $(git rev-parse --abbrev-ref HEAD) && git push --follow-tags",
+    "version:current": "echo $npm_package_version",
+    "version:latest-published": "npm view react-gracefully version"
+  },
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^7.2.0",
+    "fs-extra": "^9.1.0",
+    "inquirer": "^5.2.0",
+    "rxjs": "^5.5.12"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.7",
+    "@types/inquirer": "^7.3.1",
+    "@types/jest": "^26.0.16",
+    "@types/node": "^14.14.31",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-simple-import-sort": "^5.0.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-you-dont-need-lodash-underscore": "^6.11.0",
+    "husky": "^6.0.0",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "sort-package-json": "^1.48.0",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.1.2"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

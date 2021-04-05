@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "types": [
+      "jest"
+    ],
+    "target": "es5",
+    "module": "commonjs",
+    "outDir": "./lib",
+    "strict": true,
+    "declaration": true,
+    "removeComments": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "lib",
+    "coverage",
+    "node_modules",
+    // Tests
+    "src/**/*.test.ts",
+    "src/config/repos"
+  ]
+}
