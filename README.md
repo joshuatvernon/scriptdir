@@ -7,9 +7,6 @@
   <a href="https://www.npmjs.com/package/scriptrepo">
     <img src="https://img.shields.io/npm/v/scriptrepo.svg">
   </a>
-  <a href="https://bundlephobia.com/result?p=scriptrepo">
-    <img src="https://img.shields.io/bundlephobia/minzip/scriptrepo.svg" />
-  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg">
   </a>
@@ -30,7 +27,25 @@
 
 ## Description
 
-`scriptrepo` downloads a git repository of scripts and runs it as a CLI
+`scriptrepo` allows you to upload scripts to a git repo. This allows you to use the same scripts across computers or even share them with a team.
+
+## Support Scripts
+
+Currently, `scriptrepo` supports `.sh`, `.js`, `.ts` and `.py` scripts.
+
+## Repo Config
+
+Optionally, you can add repo configuration files to your repo directories. They are named `.scriptrepo.json` and support `description` but in the future will support `include` and `exclude` to opt certain files in and out.
+
+## Script Config
+
+Optionally, you can add script configuration files to your repo directories. They are named `<script-name>.scriptrepo.json`. So if you have a python script named `user.py` your script config would be named `user.scriptrepo.json`. This configurationf ile can be used to determine what environment variables and arguments are passed to the script.
+
+## Example Script Repo
+
+Check out these example script repos:
+
+- [team-scripts](https://github.com/joshuatvernon/team-scripts)
 
 ## Usage
 
