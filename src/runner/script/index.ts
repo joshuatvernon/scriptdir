@@ -57,7 +57,10 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
 
   let userConfirmedRunScript = true;
   if (script.config && script.config.askForConfirmation) {
-    userConfirmedRunScript = await menu.confirm(`\nRun ${chalk.magenta(script.name)} script?`);
+    userConfirmedRunScript = await menu.confirm(`Run ${chalk.magenta(script.name)} script?`);
+    if (userConfirmedRunScript) {
+      console.log('');
+    }
   }
 
   menu.stop();
