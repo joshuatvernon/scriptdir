@@ -55,7 +55,14 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
     afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${argument.value}`;
   });
 
+  let userConfirmedRunScript = true;
+  if (script.config && script.config.askForConfirmation) {
+    userConfirmedRunScript = await menu.confirm(`\nRun ${chalk.magenta(script.name)} script?`);
+  }
+
   menu.stop();
 
-  await runner.runCommand(beforeCommand + command + afterCommand, undefined, options);
+  if (userConfirmedRunScript) {
+    await runner.runCommand(beforeCommand + command + afterCommand, undefined, options);
+  }
 };
