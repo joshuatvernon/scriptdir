@@ -3,11 +3,15 @@ import { Directory, DirectoryConfig, Script, ScriptConfig } from '../../types';
 import { PathUtils } from '../../utils';
 import { validateDirectoryConfig, validateScriptConfig } from '../../validation';
 
+const SCRIPT_CONFIG_FILE_NAME_SUFFIX = `.${constants.programName}.json`;
+
 const loadScriptConfig = (path: string, fileName: string, fileNames: string[]) => {
   const scriptConfigFileName = `${PathUtils.getFileNameWithoutExtension(fileName)}${SCRIPT_CONFIG_FILE_NAME_SUFFIX}`;
   let config;
   if (fileNames.includes(scriptConfigFileName)) {
     config = PathUtils.getJsonFile(PathUtils.resolve(path, scriptConfigFileName)) as ScriptConfig;
+  } else if (fileNames.includes(`.${scriptConfigFileName}`)) {
+    config = PathUtils.getJsonFile(PathUtils.resolve(path, `.${scriptConfigFileName}`)) as ScriptConfig;
   }
   if (config) {
     validateScriptConfig(config, PathUtils.resolve(path, scriptConfigFileName));
@@ -15,7 +19,6 @@ const loadScriptConfig = (path: string, fileName: string, fileNames: string[]) =
   return config;
 };
 
-const SCRIPT_CONFIG_FILE_NAME_SUFFIX = `.${constants.programName}.json`;
 const loadScripts = (path: string): Script[] => {
   const fileNames = PathUtils.getFileNames(path);
   const scripts: Script[] = [];
@@ -35,14 +38,21 @@ const loadScripts = (path: string): Script[] => {
   return scripts;
 };
 
-const DIRECTORY_CONFIG_FILE_NAME = `.${constants.programName}.json`;
+const DIRECTORY_CONFIG_FILE_NAME = `${constants.programName}.json`;
+
 const loadDirectoryConfig = (path: string): DirectoryConfig | undefined => {
   const fileNames = PathUtils.getFileNames(path);
+  let config;
   if (fileNames.includes(DIRECTORY_CONFIG_FILE_NAME)) {
-    const config = PathUtils.getJsonFile(PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME)) as DirectoryConfig;
-    validateDirectoryConfig(config, PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME));
-    return config;
+    config = PathUtils.getJsonFile(PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME)) as DirectoryConfig;
+  } else if (fileNames.includes(`.${DIRECTORY_CONFIG_FILE_NAME}`)) {
+    config = PathUtils.getJsonFile(PathUtils.resolve(path, `.${DIRECTORY_CONFIG_FILE_NAME}`)) as DirectoryConfig;
   }
+
+  if (config !== undefined) {
+    validateDirectoryConfig(config, PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME));
+  }
+
   return undefined;
 };
 

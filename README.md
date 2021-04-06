@@ -35,11 +35,13 @@ Currently, `scriptrepo` supports `.sh`, `.js`, `.ts` and `.py` scripts.
 
 ## Repo Config
 
-Optionally, you can add repo configuration files to your repo directories. They are named `.scriptrepo.json` and support `description` but in the future will support `include` and `exclude` to opt certain files in and out.
+Optionally, you can add a repo config file named `scriptrepo.json` or `.scriptrepo.json` to configure your repo.
 
 ## Script Config
 
-Optionally, you can add script configuration files to your repo directories. They are named `<script-name>.scriptrepo.json`. So if you have a python script named `user.py` your script config would be named `user.scriptrepo.json`. This configurationf ile can be used to determine what environment variables and arguments are passed to the script.
+Optionally, you can add script configs named `<script-name>.scriptrepo.json` or `.<script-name>.scriptrepo.json` to configure your scripts.
+
+
 
 ## Example Script Repo
 
