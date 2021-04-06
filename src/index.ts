@@ -14,9 +14,12 @@ addRepoCommand.description('Add script');
 addRepoCommand.usage('[options]');
 addRepoCommand.option('-n, --name <repoName>', 'Name of repo to add');
 addRepoCommand.option('-u, --url <repoUrl>', 'Url of repo to add');
+addRepoCommand.option('-p, --path <path>', 'Path to repo to add');
 addRepoCommand.action((options: commander.OptionValues) => {
   if (options.name && options.url) {
-    commands.add(options.name, options.url);
+    commands.add(options.name, options.url, undefined);
+  } else if (options.name && options.path) {
+    commands.add(options.name, undefined, options.path);
   } else {
     addRepoCommand.help();
   }

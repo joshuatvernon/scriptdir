@@ -23,9 +23,15 @@ export const execute = async (repoName?: string, verbose?: boolean): Promise<voi
     }
   }
 
-  if (repoName !== undefined && repoNames.includes(repoName)) {
-    const directory = loader.loadDirectory(PathUtils.resolve(constants.reposPath, repoName));
-    runner.runDirectory(directory.directories[0], undefined, { verbose });
+  const repo = config.getRepoByRepoName(repoName);
+  if (repo) {
+    if (StringUtils.isNotBlank(repo.path)) {
+      const directory = loader.loadDirectory(repo.path as string);
+      runner.runDirectory(directory, undefined, { verbose });
+    } else {
+      const directory = loader.loadDirectory(PathUtils.resolve(constants.reposPath, repo.name));
+      runner.runDirectory(directory.directories[0], undefined, { verbose });
+    }
   } else {
     console.log(`No ${chalk.magenta(repoName)} repo to execute`);
   }

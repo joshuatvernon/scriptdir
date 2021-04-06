@@ -19,11 +19,14 @@ export const remove = async (repoName: string, force?: boolean): Promise<void> =
     console.log('');
   }
 
-  if (repoNames.includes(repoName)) {
+  const repo = config.getRepoByRepoName(repoName);
+  if (repo) {
     const userConfirmedRemoveRepo = force === true ? true : await menu.confirm(`Remove ${repoName} repo`);
     if (userConfirmedRemoveRepo) {
       console.log(`${force === true ? '' : '\n'}Removing ${chalk.magenta(repoName)} repo`);
-      PathUtils.removeDirectory(PathUtils.resolve(constants.reposPath, repoName));
+      if (StringUtils.isNotBlank(repo.url)) {
+        PathUtils.removeDirectory(PathUtils.resolve(constants.reposPath, repoName));
+      }
       config.updateRepos(config.repos.filter((repo) => repo.name !== repoName));
       config.save();
     }
