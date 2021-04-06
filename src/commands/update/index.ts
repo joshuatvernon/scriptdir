@@ -24,10 +24,12 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
   if (StringUtils.isBlank(repoName) || TypeUtils.isBoolean(repoName)) {
     if (forceUpdate) {
       for (let i = 0; i < config.repos.length; i++) {
-        if (!silent) {
-          console.log(`${i === 0 ? '' : '\n'}Updating ${chalk.magenta(config.repos[i].name)} repo\n`);
+        if (StringUtils.isNotBlank(config.repos[i].url)) {
+          if (!silent) {
+            console.log(`${i === 0 ? '' : '\n'}Updating ${chalk.magenta(config.repos[i].name)} repo\n`);
+          }
+          await updateRepo(config.repos[i], silent);
         }
-        await updateRepo(config.repos[i], silent);
       }
       return;
     }
@@ -35,18 +37,20 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
     const userConfirmedUpdateRepos = await menu.confirm(`Update all repos?`);
     if (userConfirmedUpdateRepos) {
       for (const repo of config.repos) {
-        if (!silent) {
-          console.log(`\nUpdating ${chalk.magenta(repo.name)} repo\n`);
+        if (StringUtils.isNotBlank(repo.url)) {
+          if (!silent) {
+            console.log(`\nUpdating ${chalk.magenta(repo.name)} repo\n`);
+          }
+          await updateRepo(repo, silent);
         }
-        await updateRepo(repo, silent);
       }
     }
     menu.stop();
   } else {
-    const repoNames = config.repos.map((repo) => repo.name);
-    if (repoNames.includes(repoName)) {
+    const repo = config.getRepoByRepoName(repoName);
+    if (repo && StringUtils.isNotBlank(repo.url)) {
       if (forceUpdate) {
-        await updateRepo(config.repos.find((repo) => repo.name === repoName) as Repo, silent);
+        await updateRepo(repo, silent);
         return;
       }
 
@@ -56,7 +60,7 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
         if (!silent) {
           console.log(`\nUpdating ${chalk.magenta(repoName)} repo\n`);
         }
-        await updateRepo(config.repos.find((repo) => repo.name === repoName) as Repo, silent);
+        await updateRepo(repo, silent);
       }
       menu.stop();
     } else {
