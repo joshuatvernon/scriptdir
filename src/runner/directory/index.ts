@@ -23,7 +23,7 @@ export const runDirectory = async (
     parentDirectory !== undefined ? constants.commands.back : undefined,
     constants.commands.quit
   ].filter((choice) => choice !== undefined) as string[];
-  let question = chalk.magentaBright.bold(`${name}`);
+  let question = chalk.magentaBright.bold(`${config && StringUtils.isNotBlank(config.name) ? config.name : name}`);
   if (options && options.verbose && config && StringUtils.isNotBlank(config.description)) {
     question += `: ${config.description}`;
   }
