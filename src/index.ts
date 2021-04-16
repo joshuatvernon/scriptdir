@@ -15,11 +15,13 @@ addRepoCommand.usage('[options]');
 addRepoCommand.option('-n, --name <repoName>', 'Name of repo to add');
 addRepoCommand.option('-u, --url <repoUrl>', 'Url of repo to add');
 addRepoCommand.option('-p, --path <path>', 'Path to repo to add');
+addRepoCommand.option('-f, --force', 'Force add');
+addRepoCommand.option('-s, --silent', 'Silent add');
 addRepoCommand.action((options: commander.OptionValues) => {
   if (options.name && options.url) {
-    commands.add(options.name, options.url, undefined);
+    commands.add(options.name, options.url, undefined, options.force, options.silent);
   } else if (options.name && options.path) {
-    commands.add(options.name, undefined, options.path);
+    commands.add(options.name, undefined, options.path, options.force, options.silent);
   } else {
     addRepoCommand.help();
   }
@@ -74,7 +76,6 @@ commander.addCommand(addRepoCommand);
 commander.addCommand(removeRepoCommand);
 commander.addCommand(updateRepoCommand);
 commander.addCommand(executeRepoCommand);
-commander.option('-v, --verbose', 'Run in verbose mode');
 commander.addCommand(listRepoCommand);
 
 // load config, parse args and run relevant commands

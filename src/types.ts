@@ -1,5 +1,7 @@
 export interface DirectoryConfig {
   /** (default: "") */
+  name?: string;
+  /** (default: "") */
   description?: string;
   exclude?: string[];
 }
@@ -8,11 +10,14 @@ export interface Input {
   name: string;
   displayName?: string;
   description?: string;
+  type?: 'string' | 'boolean' | 'flag';
   options?: string[];
   /** (default: true) */
   required?: boolean;
   value?: string | string[];
+  /** (default: false) */
   allowEmpty?: boolean;
+  example?: string;
 }
 
 export type EnvironmentVariable = Input;

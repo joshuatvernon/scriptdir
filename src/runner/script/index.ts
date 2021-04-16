@@ -11,6 +11,9 @@ const getInput = async (input: Input, options?: { verbose?: boolean }) => {
   if (input.required === true) {
     question += ` (required)`;
   }
+  if (StringUtils.isNotBlank(input.example)) {
+    question += ` (e.g. ${input.example})`;
+  }
   if (options && options.verbose === true && StringUtils.isNotBlank(input.description)) {
     question += `: ${input.description}`;
   }
@@ -20,6 +23,9 @@ const getInput = async (input: Input, options?: { verbose?: boolean }) => {
       input.required === true ? input.options : [...input.options, constants.commands.skip]
     );
   } else {
+    if (input.type === 'boolean' || input.type === 'flag') {
+      return (await menu.confirm(question)) ? 'true' : 'false';
+    }
     return await menu.input(question);
   }
 };
@@ -55,7 +61,7 @@ const getInputs = async (inputs: Input[], options?: { verbose?: boolean }) => {
 };
 
 export const runScript = async (script: Script, options?: { verbose?: boolean }): Promise<void> => {
-  if (!script.executable) {
+  if (script.extension === 'sh' && !script.executable) {
     console.warn(`${chalk.magentaBright.bold(script.name)} may not be executable. Trying to execute anyway\n`);
   }
   let command;
@@ -98,15 +104,19 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
   let afterCommand = '';
   const args = await getInputs(script.config?.arguments ?? [], options);
   args.forEach((argument) => {
-    if (argument.value !== constants.commands.skip) {
+    if (argument.value !== constants.commands.skip && !(argument.type === 'flag' && argument.value === 'false')) {
       if (argument.value && Array.isArray(argument.value)) {
         argument.value.forEach((value) => {
-          if (value !== constants.commands.skip) {
-            afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${value}`;
+          if (value !== constants.commands.skip && !(argument.type === 'flag' && value === 'false')) {
+            afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${
+              argument.type === 'flag' ? '' : value
+            }`;
           }
         });
       } else {
-        afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${argument.value}`;
+        afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${
+          argument.type === 'flag' ? '' : argument.value
+        }`;
       }
     }
   });
