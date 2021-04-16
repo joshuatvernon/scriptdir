@@ -26,7 +26,7 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
       for (let i = 0; i < config.repos.length; i++) {
         if (StringUtils.isNotBlank(config.repos[i].url)) {
           if (!silent) {
-            console.log(`${i === 0 ? '' : '\n'}Updating ${chalk.magenta(config.repos[i].name)} repo\n`);
+            console.log(`${i === 0 ? '' : '\n'}Updating ${chalk.magentaBright.bold(config.repos[i].name)} repo\n`);
           }
           await updateRepo(config.repos[i], silent);
         }
@@ -39,7 +39,7 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
       for (const repo of config.repos) {
         if (StringUtils.isNotBlank(repo.url)) {
           if (!silent) {
-            console.log(`\nUpdating ${chalk.magenta(repo.name)} repo\n`);
+            console.log(`\nUpdating ${chalk.magentaBright.bold(repo.name)} repo\n`);
           }
           await updateRepo(repo, silent);
         }
@@ -55,17 +55,17 @@ export const update = async (repoName: string, forceUpdate?: boolean, silent?: b
       }
 
       menu.start();
-      const userConfirmedUpdateRepo = await menu.confirm(`Update ${chalk.magenta(repoName)} repo?`);
+      const userConfirmedUpdateRepo = await menu.confirm(`Update ${chalk.magentaBright.bold(repoName)} repo?`);
       if (userConfirmedUpdateRepo) {
         if (!silent) {
-          console.log(`\nUpdating ${chalk.magenta(repoName)} repo\n`);
+          console.log(`\nUpdating ${chalk.magentaBright.bold(repoName)} repo\n`);
         }
         await updateRepo(repo, silent);
       }
       menu.stop();
     } else {
       if (!silent) {
-        console.log(`No ${chalk.magenta(repoName)} repo to update`);
+        console.log(`No ${chalk.magentaBright.bold(repoName)} repo to update`);
       }
     }
   }

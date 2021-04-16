@@ -23,7 +23,7 @@ export const remove = async (repoName: string, force?: boolean): Promise<void> =
   if (repo) {
     const userConfirmedRemoveRepo = force === true ? true : await menu.confirm(`Remove ${repoName} repo`);
     if (userConfirmedRemoveRepo) {
-      console.log(`${force === true ? '' : '\n'}Removing ${chalk.magenta(repoName)} repo`);
+      console.log(`${force === true ? '' : '\n'}Removing ${chalk.magentaBright.bold(repoName)} repo`);
       if (StringUtils.isNotBlank(repo.url)) {
         PathUtils.removeDirectory(PathUtils.resolve(constants.reposPath, repoName));
       }

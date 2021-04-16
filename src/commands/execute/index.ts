@@ -33,6 +33,6 @@ export const execute = async (repoName?: string, verbose?: boolean): Promise<voi
       runner.runDirectory(directory.directories[0], undefined, { verbose });
     }
   } else {
-    console.log(`No ${chalk.magenta(repoName)} repo to execute`);
+    console.log(`No ${chalk.magentaBright.bold(repoName)} repo to execute`);
   }
 };

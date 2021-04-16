@@ -1,16 +1,18 @@
 export interface DirectoryConfig {
   /** (default: "") */
   description?: string;
-  // TODO: Add support for including and excluding files and directories using globs (e.g. like tsconfig.json files)
-  // include?: [];
-  // exclude?: [];
+  exclude?: string[];
 }
 
 export interface Input {
   name: string;
+  displayName?: string;
+  description?: string;
+  options?: string[];
   /** (default: true) */
   required?: boolean;
-  value?: string;
+  value?: string | string[];
+  allowEmpty?: boolean;
 }
 
 export type EnvironmentVariable = Input;
@@ -19,7 +21,6 @@ export interface Argument extends Input {
   /** (default: false) */
   repeated?: boolean;
 }
-
 export interface ScriptConfig {
   /** (default: "") */
   description?: string;

@@ -31,7 +31,7 @@ removeRepoCommand.name('remove');
 removeRepoCommand.description('Remove script');
 removeRepoCommand.usage('[options]');
 removeRepoCommand.option('-n, --name [repoName]', 'Name of repo to remove');
-removeRepoCommand.option('-f, --force', '');
+removeRepoCommand.option('-f, --force', 'Force remove');
 removeRepoCommand.action((options: commander.OptionValues) => {
   commands.remove(options.name, options.force);
 });
@@ -54,7 +54,7 @@ executeRepoCommand.name('execute');
 executeRepoCommand.description('Execute scripts');
 executeRepoCommand.usage('[options]');
 executeRepoCommand.option('-n, --name [repoName]', 'Name of repo to update');
-executeRepoCommand.option('-v, --verbose', 'Print scipt execution command');
+executeRepoCommand.option('-v, --verbose', 'Run in verbose mode');
 executeRepoCommand.action((options: commander.OptionValues) => {
   commands.execute(options.name, options.verbose);
 });
@@ -65,7 +65,7 @@ listRepoCommand.name('list');
 listRepoCommand.description('List scripts');
 listRepoCommand.action(commands.list);
 
-// root command
+// main command
 commander.name(constants.programName);
 commander.version(version);
 commander.description('Add, update and run scripts from git repos');
@@ -74,14 +74,22 @@ commander.addCommand(addRepoCommand);
 commander.addCommand(removeRepoCommand);
 commander.addCommand(updateRepoCommand);
 commander.addCommand(executeRepoCommand);
+commander.option('-v, --verbose', 'Run in verbose mode');
 commander.addCommand(listRepoCommand);
 
+// load config, parse args and run relevant commands
 config.load();
-if (process.argv.length < 3) {
+const noArgsPassed = process.argv.length < 3;
+const onlyVerboseArgPassed = process.argv.length === 3 && (process.argv[2] === '-v' || process.argv[2] === '--verbose');
+if (noArgsPassed || onlyVerboseArgPassed) {
   if (config.repos.length === 0) {
     commander.help();
   } else {
-    commands.execute();
+    if (onlyVerboseArgPassed) {
+      commands.execute(undefined, true);
+    } else {
+      commands.execute();
+    }
   }
 } else {
   commander.parse();
