@@ -1,8 +1,10 @@
 import chalk from 'chalk';
 
 import { runner } from '..';
+import { constants } from '../../constants';
 import { menu } from '../../menu';
 import { Directory, Script } from '../../types';
+import { StringUtils } from '../../utils';
 
 export const runDirectory = async (
   directory: Directory,
@@ -12,24 +14,28 @@ export const runDirectory = async (
   if (!directory) {
     return null;
   }
-  const { name, scripts, directories } = directory;
+  const { name, scripts, directories, config } = directory;
   const scriptNames = scripts.map((script) => `${chalk.green('$ ')}${script.name}`);
   const directoryNames = directories.map((directory) => directory.name);
   const choices = [
     ...scriptNames,
     ...directoryNames,
-    parentDirectory !== undefined ? 'Go back' : undefined,
-    'Quit'
+    parentDirectory !== undefined ? constants.commands.back : undefined,
+    constants.commands.quit
   ].filter((choice) => choice !== undefined) as string[];
-  const answer = await menu.list(chalk.magenta(`${name}`), choices);
+  let question = chalk.magentaBright.bold(`${name}`);
+  if (options && options.verbose && config && StringUtils.isNotBlank(config.description)) {
+    question += `: ${config.description}`;
+  }
+  const answer = await menu.list(question, choices);
   if (answer.includes(chalk.green('$ '))) {
     const scriptName = answer.slice(chalk.green('$ ').length);
     const script = directory.scripts.find((script) => script.name === scriptName) as Script;
     await runner.runScript(script, options);
     return null;
-  } else if (answer.includes('Go back')) {
+  } else if (answer.includes(constants.commands.back)) {
     return parentDirectory;
-  } else if (answer.includes('Quit')) {
+  } else if (answer.includes(constants.commands.quit)) {
     await menu.stop();
     process.exit();
   } else {

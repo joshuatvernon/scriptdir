@@ -19,8 +19,11 @@ const loadScriptConfig = (path: string, fileName: string, fileNames: string[]) =
   return config;
 };
 
-const loadScripts = (path: string): Script[] => {
-  const fileNames = PathUtils.getFileNames(path);
+const loadScripts = (path: string, directoryConfig?: DirectoryConfig): Script[] => {
+  const fileNames = PathUtils.getFileNames(path).filter((scriptName) => {
+    const isExcludedScript = directoryConfig && directoryConfig.exclude && directoryConfig.exclude.includes(scriptName);
+    return !isExcludedScript;
+  });
   const scripts: Script[] = [];
   for (const fileName of fileNames) {
     if (fileName.endsWith(SCRIPT_CONFIG_FILE_NAME_SUFFIX)) {
@@ -53,15 +56,21 @@ const loadDirectoryConfig = (path: string): DirectoryConfig | undefined => {
     validateDirectoryConfig(config, PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME));
   }
 
-  return undefined;
+  return config;
 };
 
 export const loadDirectory = (path: string): Directory => {
   const name = PathUtils.getDirectoryName(path);
   const config = loadDirectoryConfig(path);
-  const scripts = loadScripts(path);
+  const scripts = loadScripts(path, config);
   const directoryNames = PathUtils.getDirectoryNames(path);
-  const directories = directoryNames.map((directoryName) => loadDirectory(PathUtils.resolve(path, directoryName)));
+  const directories = directoryNames
+    .filter((directoryName) => {
+      const isBlocklistedDirectory = constants.directoryBlocklist.includes(directoryName);
+      const isExcludedDirectory = config && config.exclude && config.exclude.includes(directoryName);
+      return !isBlocklistedDirectory && !isExcludedDirectory;
+    })
+    .map((directoryName) => loadDirectory(PathUtils.resolve(path, directoryName)));
   const directory: Directory = {
     name,
     path,

@@ -1,28 +1,62 @@
 import chalk from 'chalk';
 
 import { runner } from '..';
+import { constants } from '../../constants';
 import { menu } from '../../menu';
-import { Argument, EnvironmentVariable, Script } from '../../types';
+import { Argument, Input, Script } from '../../types';
+import { StringUtils } from '../../utils';
 
-const getEnvironmentVariables = async (environmentVariables: EnvironmentVariable[]) => {
-  for (const environmentVariable of environmentVariables) {
-    const value = await menu.input(environmentVariable.name);
-    environmentVariable.value = value;
+const getInput = async (input: Input, options?: { verbose?: boolean }) => {
+  let question = chalk.magentaBright.bold(input.displayName ? input.displayName : input.name);
+  if (input.required === true) {
+    question += ` (required)`;
   }
-  return environmentVariables;
+  if (options && options.verbose === true && StringUtils.isNotBlank(input.description)) {
+    question += `: ${input.description}`;
+  }
+  if (input.options && Array.isArray(input.options) && input.options.length > 0) {
+    return await menu.list(
+      question,
+      input.required === true ? input.options : [...input.options, constants.commands.skip]
+    );
+  } else {
+    return await menu.input(question);
+  }
 };
 
-const getArguments = async (args: Argument[]) => {
-  for (const arg of args) {
-    const value = await menu.input(arg.name);
-    arg.value = value;
+const getInputs = async (inputs: Input[], options?: { verbose?: boolean }) => {
+  for (const input of inputs) {
+    if ((input as Argument).repeated) {
+      input.value = [];
+      do {
+        if (
+          (!input.options || input.options.length === 0) &&
+          input.value.length > 0 &&
+          input.value[input.value.length - 1] === ''
+        ) {
+          break;
+        }
+        if (input.required === true && input.value.length > 0) {
+          input.required = false;
+        }
+        input.value.push(await getInput(input, options));
+      } while (input.value[input.value.length - 1] !== constants.commands.skip);
+      if (!input.allowEmpty) {
+        input.value = input.value.filter((value) => value !== '');
+      }
+    } else {
+      input.value = await getInput(input, options);
+      if (input.value === '' && !input.allowEmpty) {
+        input.value = constants.commands.skip;
+      }
+    }
   }
-  return args;
+  return inputs;
 };
 
 export const runScript = async (script: Script, options?: { verbose?: boolean }): Promise<void> => {
   if (!script.executable) {
-    console.warn(`${chalk.magenta(script.name)} may not be executable. Trying to execute anyway\n`);
+    console.warn(`${chalk.magentaBright.bold(script.name)} may not be executable. Trying to execute anyway\n`);
   }
   let command;
   switch (script.extension.toLowerCase()) {
@@ -40,24 +74,46 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
       break;
     default:
       throw new Error(
-        `Cannot run ${chalk.magenta(script.name)} because ${chalk.magenta(script.extension)} files are not a supported`
+        `Cannot run ${chalk.magentaBright.bold(script.name)} because ${chalk.magentaBright.bold(
+          script.extension
+        )} files are not a supported`
       );
   }
 
   let beforeCommand = '';
-  const environmentVariables = await getEnvironmentVariables(script.config?.environmentVariables ?? []);
+  const environmentVariables = await getInputs(script.config?.environmentVariables ?? [], options);
   environmentVariables.forEach((environmentVariable) => {
-    beforeCommand += `${environmentVariable.name}=${environmentVariable.value} `;
+    if (environmentVariable.value !== constants.commands.skip) {
+      if (environmentVariable.value && Array.isArray(environmentVariable.value)) {
+        environmentVariable.value.forEach((value) => {
+          if (value !== constants.commands.skip) {
+            beforeCommand += `${environmentVariable.name}=${value} `;
+          }
+        });
+      } else {
+        beforeCommand += `${environmentVariable.name}=${environmentVariable.value} `;
+      }
+    }
   });
   let afterCommand = '';
-  const args = await getArguments(script.config?.arguments ?? []);
+  const args = await getInputs(script.config?.arguments ?? [], options);
   args.forEach((argument) => {
-    afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${argument.value}`;
+    if (argument.value !== constants.commands.skip) {
+      if (argument.value && Array.isArray(argument.value)) {
+        argument.value.forEach((value) => {
+          if (value !== constants.commands.skip) {
+            afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${value}`;
+          }
+        });
+      } else {
+        afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${argument.value}`;
+      }
+    }
   });
 
   let userConfirmedRunScript = true;
   if (script.config && script.config.askForConfirmation) {
-    userConfirmedRunScript = await menu.confirm(`Run ${chalk.magenta(script.name)} script?`);
+    userConfirmedRunScript = await menu.confirm(`Run ${chalk.magentaBright.bold(script.name)} script?`);
     if (userConfirmedRunScript) {
       console.log('');
     }
