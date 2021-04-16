@@ -73,7 +73,7 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
       command = `node ${script.path}`;
       break;
     case 'ts':
-      command = `npx ts-node --transpile-only ${script.path}`;
+      command = `npx ts-node --script-mode --transpile-only ${script.path}`;
       break;
     case 'py':
       command = `python3 ${script.path}`;
