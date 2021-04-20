@@ -93,11 +93,17 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
       if (environmentVariable.value && Array.isArray(environmentVariable.value)) {
         environmentVariable.value.forEach((value) => {
           if (value !== constants.commands.skip) {
-            beforeCommand += `${environmentVariable.name}=${value} `;
+            if (environmentVariable.type === 'string') {
+              beforeCommand += `${environmentVariable.name}=${JSON.stringify(value)} `;
+            } else {
+              beforeCommand += `${environmentVariable.name}=${value} `;
+            }
           }
         });
       } else {
-        beforeCommand += `${environmentVariable.name}=${environmentVariable.value} `;
+        beforeCommand += `${environmentVariable.name}=${
+          environmentVariable.type === 'string' ? JSON.stringify(environmentVariable.value) : environmentVariable.value
+        } `;
       }
     }
   });
@@ -109,13 +115,13 @@ export const runScript = async (script: Script, options?: { verbose?: boolean })
         argument.value.forEach((value) => {
           if (value !== constants.commands.skip && !(argument.type === 'flag' && value === 'false')) {
             afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${
-              argument.type === 'flag' ? '' : value
+              argument.type === 'flag' ? '' : argument.type === 'string' ? JSON.stringify(value) : value
             }`;
           }
         });
       } else {
         afterCommand += ` ${argument.name.length === 1 ? '-' : '--'}${argument.name} ${
-          argument.type === 'flag' ? '' : argument.value
+          argument.type === 'flag' ? '' : argument.type === 'string' ? JSON.stringify(argument.value) : argument.value
         }`;
       }
     }
