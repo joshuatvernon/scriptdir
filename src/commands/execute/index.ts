@@ -6,7 +6,6 @@ import { loader } from '../../loader';
 import { menu } from '../../menu';
 import { runner } from '../../runner';
 import { PathUtils, StringUtils, TypeUtils } from '../../utils';
-
 export const execute = async (repoName?: string, verbose?: boolean): Promise<void> => {
   if (config.repos.length === 0) {
     console.log('No repos to execute');
@@ -34,5 +33,6 @@ export const execute = async (repoName?: string, verbose?: boolean): Promise<voi
     }
   } else {
     console.log(`No ${chalk.magentaBright.bold(repoName)} repo to execute`);
+    process.exit();
   }
 };
