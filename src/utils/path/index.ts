@@ -33,7 +33,7 @@ const isFileExecutable = (path: string): boolean => {
 };
 const directoryExists = (path: string): boolean => fse.existsSync(path);
 const createDirectory = (path: string): void => fse.mkdirSync(path);
-const removeDirectory = (path: string): void => fse.rmdirSync(path, { recursive: true });
+const removeDirectory = (path: string): void => fse.rmSync(path, { recursive: true });
 
 export const PathUtils = {
   isFile,
