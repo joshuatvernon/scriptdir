@@ -5,7 +5,12 @@ import { validateDirectoryConfig, validateScriptConfig } from '../../validation'
 
 const SCRIPT_CONFIG_FILE_NAME_SUFFIX = `.${constants.programName}.json`;
 
-const loadScriptConfig = (path: string, fileName: string, fileNames: string[]) => {
+const loadScriptConfig = (
+  path: string,
+  fileName: string,
+  fileNames: string[],
+  directoryAndScriptConfigIds: string[]
+): [ScriptConfig | undefined, string[]] => {
   const scriptConfigFileName = `${PathUtils.getFileNameWithoutExtension(fileName)}${SCRIPT_CONFIG_FILE_NAME_SUFFIX}`;
   let config;
   if (fileNames.includes(scriptConfigFileName)) {
@@ -14,12 +19,20 @@ const loadScriptConfig = (path: string, fileName: string, fileNames: string[]) =
     config = PathUtils.getJsonFile(PathUtils.resolve(path, `.${scriptConfigFileName}`)) as ScriptConfig;
   }
   if (config) {
-    validateScriptConfig(config, PathUtils.resolve(path, scriptConfigFileName));
+    validateScriptConfig(config, PathUtils.resolve(path, scriptConfigFileName), directoryAndScriptConfigIds);
+    if (config && config.id) {
+      // Add script config id to directory and script config ids
+      directoryAndScriptConfigIds.push(config?.id);
+    }
   }
-  return config;
+  return [config, directoryAndScriptConfigIds];
 };
 
-const loadScripts = (path: string, directoryConfig?: DirectoryConfig): Script[] => {
+const loadScripts = (
+  path: string,
+  directoryAndScriptConfigIds: string[],
+  directoryConfig?: DirectoryConfig
+): [Script[], string[]] => {
   const fileNames = PathUtils.getFileNames(path).filter((scriptName) => {
     const isExcludedScript = directoryConfig && directoryConfig.exclude && directoryConfig.exclude.includes(scriptName);
     return !isExcludedScript;
@@ -29,21 +42,31 @@ const loadScripts = (path: string, directoryConfig?: DirectoryConfig): Script[] 
     if (fileName.endsWith(SCRIPT_CONFIG_FILE_NAME_SUFFIX)) {
       continue;
     }
+    const [scriptConfig, newDirectoryAndScriptConfigIds] = loadScriptConfig(
+      path,
+      fileName,
+      fileNames,
+      directoryAndScriptConfigIds
+    );
+    directoryAndScriptConfigIds = newDirectoryAndScriptConfigIds;
     const script: Script = {
       name: PathUtils.getFileNameWithoutExtension(fileName),
       path: PathUtils.resolve(path, fileName),
       extension: PathUtils.getFileExtensionWithoutFileName(fileName),
-      config: loadScriptConfig(path, fileName, fileNames),
+      config: scriptConfig,
       executable: PathUtils.isFileExecutable(PathUtils.resolve(path, fileName))
     };
     scripts.push(script);
   }
-  return scripts;
+  return [scripts, directoryAndScriptConfigIds];
 };
 
 const DIRECTORY_CONFIG_FILE_NAME = `${constants.programName}.json`;
 
-const loadDirectoryConfig = (path: string): DirectoryConfig | undefined => {
+const loadDirectoryConfig = (
+  path: string,
+  directoryAndScriptConfigIds: string[]
+): [DirectoryConfig | undefined, string[]] => {
   const fileNames = PathUtils.getFileNames(path);
   let config;
   if (fileNames.includes(DIRECTORY_CONFIG_FILE_NAME)) {
@@ -53,16 +76,24 @@ const loadDirectoryConfig = (path: string): DirectoryConfig | undefined => {
   }
 
   if (config !== undefined) {
-    validateDirectoryConfig(config, PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME));
+    validateDirectoryConfig(config, PathUtils.resolve(path, DIRECTORY_CONFIG_FILE_NAME), directoryAndScriptConfigIds);
+    if (config && config.id) {
+      // Add directory config id to directory and script config ids
+      directoryAndScriptConfigIds.push(config?.id);
+    }
   }
 
-  return config;
+  return [config, directoryAndScriptConfigIds];
 };
 
-export const loadDirectory = (path: string): Directory => {
+export const loadDirectory = (path: string, directoryAndScriptConfigIds: string[]): [Directory, string[]] => {
   const name = PathUtils.getDirectoryName(path);
-  const config = loadDirectoryConfig(path);
-  const scripts = loadScripts(path, config);
+  const loadedDirectoryConfig = loadDirectoryConfig(path, directoryAndScriptConfigIds);
+  const config = loadedDirectoryConfig[0];
+  directoryAndScriptConfigIds = loadedDirectoryConfig[1];
+  const loadedScripts = loadScripts(path, directoryAndScriptConfigIds, config);
+  const scripts = loadedScripts[0];
+  directoryAndScriptConfigIds = loadedScripts[1];
   const directoryNames = PathUtils.getDirectoryNames(path);
   const directories = directoryNames
     .filter((directoryName) => {
@@ -70,7 +101,11 @@ export const loadDirectory = (path: string): Directory => {
       const isExcludedDirectory = config && config.exclude && config.exclude.includes(directoryName);
       return !isBlocklistedDirectory && !isExcludedDirectory;
     })
-    .map((directoryName) => loadDirectory(PathUtils.resolve(path, directoryName)));
+    .map((directoryName) => {
+      const loadedDirectory = loadDirectory(PathUtils.resolve(path, directoryName), directoryAndScriptConfigIds);
+      directoryAndScriptConfigIds = loadedDirectory[1];
+      return loadedDirectory[0];
+    });
   const directory: Directory = {
     name,
     path,
@@ -78,5 +113,5 @@ export const loadDirectory = (path: string): Directory => {
     directories,
     config
   };
-  return directory;
+  return [directory, directoryAndScriptConfigIds];
 };

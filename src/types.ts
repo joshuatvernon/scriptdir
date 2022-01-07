@@ -1,4 +1,6 @@
 export interface DirectoryConfig {
+  /** If present allows running directory directly; must be unique amongst directories and scripts */
+  id?: string;
   /** (default: "") */
   name?: string;
   /** (default: "") */
@@ -27,6 +29,8 @@ export interface Argument extends Input {
   repeated?: boolean;
 }
 export interface ScriptConfig {
+  /** If present allows running script directly; must be unique amongst directories and scripts */
+  id?: string;
   /** (default: "") */
   description?: string;
   /** (default: false) */

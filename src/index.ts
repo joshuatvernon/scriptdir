@@ -56,9 +56,10 @@ executeRepoCommand.name('execute');
 executeRepoCommand.description('Execute scripts');
 executeRepoCommand.usage('[options]');
 executeRepoCommand.option('-n, --name [repoName]', 'Name of repo to update');
+executeRepoCommand.option('-i, --id [id]', 'Unique id of directory or script to run directly');
 executeRepoCommand.option('-v, --verbose', 'Run in verbose mode');
 executeRepoCommand.action((options: commander.OptionValues) => {
-  commands.execute(options.name, options.verbose);
+  commands.execute(options.name, options.id, options.verbose);
 });
 
 // "list" command
@@ -87,7 +88,7 @@ if (noArgsPassed || onlyVerboseArgPassed) {
     commander.help();
   } else {
     if (onlyVerboseArgPassed) {
-      commands.execute(undefined, true);
+      commands.execute(undefined, undefined, true);
     } else {
       commands.execute();
     }
