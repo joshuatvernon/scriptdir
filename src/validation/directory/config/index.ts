@@ -1,7 +1,18 @@
 import { ConfigValidationError, ConfigValidationType } from '../../../errors';
 import { DirectoryConfig } from '../../../types';
 
-export const validateDirectoryConfig = (config: DirectoryConfig, configName: string): void => {
+export const validateDirectoryConfig = (
+  config: DirectoryConfig,
+  configName: string,
+  directoryAndScriptConfigIds: string[]
+): void => {
+  if (config.id && directoryAndScriptConfigIds.includes(config.id)) {
+    throw ConfigValidationError.builder(configName, ConfigValidationType.InvalidFieldValue)
+      .withFieldName('id')
+      .withFieldValue(config.id)
+      .withMessage(`Duplicate "${config.id}" id found! Directory and script config id's must be unique`)
+      .build();
+  }
   if (config.name && typeof config.name !== 'string') {
     throw ConfigValidationError.builder(configName, ConfigValidationType.InvalidFieldType)
       .withFieldName('name')
