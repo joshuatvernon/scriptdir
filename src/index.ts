@@ -66,7 +66,11 @@ executeRepoCommand.action((options: commander.OptionValues) => {
 const listRepoCommand = new commander.Command();
 listRepoCommand.name('list');
 listRepoCommand.description('List scripts');
-listRepoCommand.action(commands.list);
+listRepoCommand.usage('[options]');
+listRepoCommand.option('-v, --verbose', 'List scripts with unique ids');
+listRepoCommand.action((options: commander.OptionValues) => {
+  commands.list(options.verbose);
+});
 
 // main command
 commander.name(constants.programName);

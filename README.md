@@ -41,8 +41,6 @@ Optionally, you can add a repo config file named `scriptrepo.json` or `.scriptre
 
 Optionally, you can add script configs named `<script-name>.scriptrepo.json` or `.<script-name>.scriptrepo.json` to configure your scripts.
 
-
-
 ## Example Script Repo
 
 Check out these example script repos:
@@ -65,6 +63,6 @@ Commands:
   remove [options]   Remove script
   update [options]   Update scripts
   execute [options]  Execute scripts
-  list               List scripts
+  list [options]     List scripts
   help [command]     display help for command
 ```
